@@ -14,8 +14,9 @@
 #include <inttypes.h>
 #include <vector>
 #include "Array.hpp"
-#include "../Errors.hpp"
-#include "mt_rng.hpp"
+#include "arrays.hpp"
+#include "complex.hpp"
+#include "mie.hpp"
 
 #ifdef USE_OMP
 #include <omp.h>

@@ -12,10 +12,10 @@
 #include "Array.hpp"
 #include "ArrayMEX.hpp"
 #include "MC3D.hpp"
-#include "../versionstring.h"
-
 #include "matrix.h"
-
+#include "arrays.hpp"
+#include "complex.hpp"
+#include "mie.hpp"
 // Compiling (from MATLAB prompt):
 //   mex MC3Dmex.cpp
 //

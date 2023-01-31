@@ -1,3 +1,6 @@
+#ifndef __ARRAYS_HPP__
+#define __ARRAYS_HPP__
+#include <inttypes.h>
 /*3:*/
 #line 27 "arrays.w"
 
@@ -59,3 +62,4 @@ void print_darray(double*a,long size,long ilow,long ihigh)
 ;
 
 /*:3*/
+#endif
