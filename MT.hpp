@@ -1,10 +1,10 @@
-#ifndef __MC3D_HPP__
-#define __MC3D_HPP__
+#ifndef __MT_HPP__
+#define __MT_HPP__
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-// define USE_OMP prior to including MC3D.hpp to utilize OpenMP
-// define USE_MPI prior to including MC3D.hpp to utilize MPI
+// define USE_OMP prior to including MT.hpp to utilize OpenMP
+// define USE_MPI prior to including MT.hpp to utilize MPI
 
 #include <iostream>
 #include <time.h>
@@ -49,13 +49,13 @@ typedef struct _Photon
 } Photon;
 
 // Class for 3D Optical Monte Carlo
-class MC3D
+class MT
 {
 public:
   // Constructor, destructor & Assingment operator
-  MC3D();
-  ~MC3D();
-  MC3D &operator=(const MC3D &ref);
+  MT();
+  ~MT();
+  MT &operator=(const MT &ref);
 
   // Random number generation related
   void InitRand();
@@ -75,7 +75,7 @@ public:
   // Normal of face f on element el
   void Normal(int_fast64_t el, long f, double *normal);
 
-  // Initializes the MC3D after all the problem definition parameters have been given
+  // Initializes the MT after all the problem definition parameters have been given
   // Ie. constructs missing parameters
   void Init();
 
@@ -97,8 +97,8 @@ public:
   int FresnelPhoton(Photon *phot);
   void PropagatePhoton(Photon *phot);
 
-  // Perform MonteCarlo computation
-  void MonteCarlo(bool (*progress)(double) = NULL, void (*finalchecks)(int, int) = NULL);
+  // Perform MieTheory computation
+  void MieTheory(bool (*progress)(double) = NULL, void (*finalchecks)(int, int) = NULL);
   // [AL] Check if the arrays seem valid
   void ErrorChecks();
 
@@ -174,7 +174,7 @@ public:
 };
 
 // Constuctor, set some default values for Monte Carlo
-MC3D::MC3D()
+MT::MT()
 {
   c0 = 2.99792458e11;
 
@@ -191,14 +191,14 @@ MC3D::MC3D()
 }
 
 // Nothing need to be done, Arrays will kill themselves when it's time
-MC3D::~MC3D()
+MT::~MT()
 {
 }
 
 // Assingment operator:
 //  This will copy references to geometrical and parametric variables
 //  Only new variables in the left hand side will be ER/EI, EBR/EBI, VER/VEI
-MC3D &MC3D::operator=(const MC3D &ref)
+MT &MT::operator=(const MT &ref)
 {
   if (this != &ref)
   {
@@ -274,37 +274,37 @@ MC3D &MC3D::operator=(const MC3D &ref)
 }
 
 // Initialize random number generator
-void MC3D::InitRand()
+void MT::InitRand()
 {
   rng.Seed(seed);
 }
 
 // Draw random number on [0, 1]
-double MC3D::UnifClosed()
+double MT::UnifClosed()
 {
   return (rng.drand_closed());
 }
 
 // Draw random number on ]0, 1[
-double MC3D::UnifOpen()
+double MT::UnifOpen()
 {
   return (rng.drand_open());
 }
 
 // Draw random number ]0, 1]
-double MC3D::UnifHalfDown()
+double MT::UnifHalfDown()
 {
   return (rng.drand_open_down());
 }
 
 // Draw random number [0, 1[
-double MC3D::UnifHalfUp()
+double MT::UnifHalfUp()
 {
   return (rng.drand_open_up());
 }
 
 // Volume of element el
-double MC3D::ElementVolume(int_fast64_t el)
+double MT::ElementVolume(int_fast64_t el)
 {
   double ax, ay, az;
   double bx, by, bz;
@@ -333,7 +333,7 @@ double MC3D::ElementVolume(int_fast64_t el)
 }
 
 // Area of boundary element ib
-double MC3D::ElementArea(int_fast64_t ib)
+double MT::ElementArea(int_fast64_t ib)
 {
   double a, b, c, area;
   a = sqrt(pow(r(BH(ib, 1), 0) - r(BH(ib, 0), 0), 2) + pow(r(BH(ib, 1), 1) - r(BH(ib, 0), 1), 2) + pow(r(BH(ib, 1), 2) - r(BH(ib, 0), 2), 2));
@@ -344,7 +344,7 @@ double MC3D::ElementArea(int_fast64_t ib)
 }
 
 // Area of face f of element el
-double MC3D::ElementArea(int_fast64_t el, long f)
+double MT::ElementArea(int_fast64_t el, long f)
 {
   double a, b, c, area;
   int i0, i1, i2;
@@ -384,7 +384,7 @@ double MC3D::ElementArea(int_fast64_t el, long f)
 }
 
 // Normal of boundary element ib
-void MC3D::Normal(int_fast64_t ib, double *normal)
+void MT::Normal(int_fast64_t ib, double *normal)
 {
   double x1, y1, z1, x2, y2, z2, nx, ny, nz, norm;
 
@@ -406,7 +406,7 @@ void MC3D::Normal(int_fast64_t ib, double *normal)
 }
 
 // Normal of face f on element el
-void MC3D::Normal(int_fast64_t el, long f, double *normal)
+void MT::Normal(int_fast64_t el, long f, double *normal)
 {
   int i0, i1, i2;
   if (f == 0)
@@ -458,7 +458,7 @@ void MC3D::Normal(int_fast64_t el, long f, double *normal)
 }
 
 // Perform errorchecking and throw an error
-void MC3D::ErrorChecks()
+void MT::ErrorChecks()
 {
   /* SANITY CHECKS */
   // Check that
@@ -574,7 +574,7 @@ void MC3D::ErrorChecks()
 // Initialize Monte Carlo after geometry & material parameters have been assigned
 // Under MPI also communicates relevant parameters to other computers and initializes
 // mersenne twister with consequetive seed numbers
-void MC3D::Init()
+void MT::Init()
 {
 #ifdef USE_OMP
   threadcount = omp_get_max_threads();
@@ -738,7 +738,7 @@ void MC3D::Init()
   return;
 }
 
-void MC3D::search_neighbor(std::vector<int_fast64_t> &neighborlist, int_fast64_t element)
+void MT::search_neighbor(std::vector<int_fast64_t> &neighborlist, int_fast64_t element)
 {
   for (unsigned int i = 0; i < neighborlist.size(); i++)
   {
@@ -833,7 +833,7 @@ void MC3D::search_neighbor(std::vector<int_fast64_t> &neighborlist, int_fast64_t
 }
 
 // Build neigbourhood HN for volumetric topology H
-void MC3D::BuildNeighbourhoods()
+void MT::BuildNeighbourhoods()
 {
 #define NEW_NHOOD
 #ifdef NEW_NHOOD
@@ -939,7 +939,7 @@ void MC3D::BuildNeighbourhoods()
 //   LightSources will contain index to the boundary element in BH acting as lightsource
 //   LightSourcesMother will contain index to volumetric element H for which BH is attached
 //   LightSourcesCDF will be a cumulative/normalized sum of areas of all the lightsources, this will ease randomizing the creation of photons
-void MC3D::BuildLightSource()
+void MT::BuildLightSource()
 {
   int_fast64_t ii, jj, kk, ib, NLightSource;
 
@@ -1003,8 +1003,8 @@ void MC3D::BuildLightSource()
 }
 
 // Determine which face a photon will exit a volumetric element from
-//int MC3D::WhichFace(double curpos[3], double dir[3], int el, int face, double *dist){
-int MC3D::WhichFace(Photon *phot, double *dist)
+//int MT::WhichFace(double curpos[3], double dir[3], int el, int face, double *dist){
+int MT::WhichFace(Photon *phot, double *dist)
 {
   // phot - photon under test
   // dist - distance the photon can travel before hitting the face
@@ -1058,7 +1058,7 @@ int MC3D::WhichFace(Photon *phot, double *dist)
 }
 
 // Create a new photon based on LightSources, LightSourcesMother and LighSourcesCDF
-void MC3D::CreatePhoton(Photon *phot)
+void MT::CreatePhoton(Photon *phot)
 {
   double xi = UnifClosed();
 
@@ -1295,7 +1295,7 @@ void MC3D::CreatePhoton(Photon *phot)
 }
 
 // Scatter a photon
-void MC3D::ScatterPhoton(Photon *phot)
+void MT::ScatterPhoton(Photon *phot)
 {
   double xi, theta, phi;
   double dxn, dyn, dzn;
@@ -1341,7 +1341,7 @@ void MC3D::ScatterPhoton(Photon *phot)
 }
 
 // Mirror photons propagation with respect to boundary element ib
-void MC3D::MirrorPhoton(Photon *phot, int_fast64_t ib)
+void MT::MirrorPhoton(Photon *phot, int_fast64_t ib)
 {
   double n[3], cdot;
   Normal(ib, n);
@@ -1352,7 +1352,7 @@ void MC3D::MirrorPhoton(Photon *phot, int_fast64_t ib)
 }
 
 // Mirror photon with respect to face f of element el
-void MC3D::MirrorPhoton(Photon *phot, int_fast64_t el, long f)
+void MT::MirrorPhoton(Photon *phot, int_fast64_t el, long f)
 {
   double n[3], cdot;
   Normal(el, f, n);
@@ -1363,7 +1363,7 @@ void MC3D::MirrorPhoton(Photon *phot, int_fast64_t el, long f)
 }
 
 // Fresnel transmission / reflection of a photon
-int MC3D::FresnelPhoton(Photon *phot)
+int MT::FresnelPhoton(Photon *phot)
 {
   // Likelyhood of reflection:
   //   R = 0.5 ( sin^2(theta_i - theta_t) / sin^2(theta_i + theta_t) + tan^2(theta_i - theta_t) / tan^2(theta_i + theta_t))
@@ -1448,7 +1448,7 @@ int MC3D::FresnelPhoton(Photon *phot)
 }
 
 // Propagate a photon until it dies
-void MC3D::PropagatePhoton(Photon *phot)
+void MT::PropagatePhoton(Photon *phot)
 {
   double prop, dist, ds;
   int_fast64_t ib;
@@ -1621,25 +1621,25 @@ void MC3D::PropagatePhoton(Photon *phot)
 }
 
 // Run Monte Carlo
-void MC3D::MonteCarlo(bool (*progress)(double), void (*finalchecks)(int,int))
+void MT::MieTheory(bool (*progress)(double), void (*finalchecks)(int,int))
 {
 #ifdef USE_OMP
 
   // OpenMP implementation
 
-  // Spawn new MC3D classes with Nphoton' = Nphoton / ThreadCount, and initialize mt_rng seed
+  // Spawn new MT classes with Nphoton' = Nphoton / ThreadCount, and initialize mt_rng seed
   int_fast64_t ii, jj, nthread = omp_get_max_threads();
   int_fast64_t *ticks = new int_fast64_t[(int)nthread];
-  MC3D *MCS = new MC3D[(int)nthread];
+  MT *MTS = new MT[(int)nthread];
   bool abort_computation = false;
   // [AL] the progress bar gets an update after every TICK_VAL photons
 #define TICK_VAL 1000
   for (ii = 0; ii < nthread; ii++)
   {
-    MCS[ii] = *this;
-    MCS[ii].Nphoton = Nphoton / nthread;
-    MCS[ii].seed = (unsigned long) (MCS[ii].seed * totalthreads + ii);
-    MCS[ii].InitRand();
+    MTS[ii] = *this;
+    MTS[ii].Nphoton = Nphoton / nthread;
+    MTS[ii].seed = (unsigned long) (MTS[ii].seed * totalthreads + ii);
+    MTS[ii].InitRand();
     ticks[ii] = 0;
   }
 
@@ -1647,14 +1647,14 @@ void MC3D::MonteCarlo(bool (*progress)(double), void (*finalchecks)(int,int))
   // therefore add the remaining photons to the last thread.
   long realnphot = 0;
   for (ii = 0; ii < nthread; ii++)
-    realnphot += MCS[ii].Nphoton;
-  MCS[nthread - 1].Nphoton += Nphoton - realnphot;
+    realnphot += MTS[ii].Nphoton;
+  MTS[nthread - 1].Nphoton += Nphoton - realnphot;
   // Compute Monte Carlo on each thread separetely
 #pragma omp parallel
   {
     int_fast64_t iphoton, thread = omp_get_thread_num();
     Photon phot;
-    for (iphoton = 1; iphoton <= MCS[thread].Nphoton; iphoton++)
+    for (iphoton = 1; iphoton <= MTS[thread].Nphoton; iphoton++)
     {
       ticks[thread] = iphoton;
       if (iphoton % TICK_VAL == 0)
@@ -1677,11 +1677,11 @@ void MC3D::MonteCarlo(bool (*progress)(double), void (*finalchecks)(int,int))
         if (abort_computation)
           break;
       }
-      MCS[thread].CreatePhoton(&phot);
-      MCS[thread].PropagatePhoton(&phot);
+      MTS[thread].CreatePhoton(&phot);
+      MTS[thread].PropagatePhoton(&phot);
     }
   }
-#ifdef VALOMC_MEX
+#ifdef MIETHEORY_MEX
   int_fast64_t csum = 0;
   for (jj = 0; jj < nthread; jj++)
   {
@@ -1693,21 +1693,21 @@ void MC3D::MonteCarlo(bool (*progress)(double), void (*finalchecks)(int,int))
 #endif
 #pragma omp barrier
 
-  // Sum up the results to first instance and delete MCS
+  // Sum up the results to first instance and delete MTS
   Nphoton = 0;
   loss = 0;
   for (jj = 0; jj < nthread; jj++)
   {
-    Nphoton += MCS[jj].Nphoton;
-    loss += MCS[jj].loss;
+    Nphoton += MTS[jj].Nphoton;
+    loss += MTS[jj].loss;
   }
   for (ii = 0; ii < H.Nx; ii++)
   {
     ER[ii] = EI[ii] = 0.0;
     for (jj = 0; jj < nthread; jj++)
     {
-      ER[ii] += MCS[jj].ER[ii];
-      EI[ii] += MCS[jj].EI[ii];
+      ER[ii] += MTS[jj].ER[ii];
+      EI[ii] += MTS[jj].EI[ii];
     }
   }
   for (ii = 0; ii < BH.Nx; ii++)
@@ -1715,8 +1715,8 @@ void MC3D::MonteCarlo(bool (*progress)(double), void (*finalchecks)(int,int))
     EBR[ii] = EBI[ii] = 0.0;
     for (jj = 0; jj < nthread; jj++)
     {
-      EBR[ii] += MCS[jj].EBR[ii];
-      EBI[ii] += MCS[jj].EBI[ii];
+      EBR[ii] += MTS[jj].EBR[ii];
+      EBI[ii] += MTS[jj].EBI[ii];
     }
   }
 
@@ -1725,14 +1725,14 @@ void MC3D::MonteCarlo(bool (*progress)(double), void (*finalchecks)(int,int))
     DEBR[ii] = DEBI[ii] = 0.0;
     for (jj = 0; jj < nthread; jj++)
     {
-      DEBR[ii] += MCS[jj].DEBR[ii];
-      DEBI[ii] += MCS[jj].DEBI[ii];
+      DEBR[ii] += MTS[jj].DEBR[ii];
+      DEBI[ii] += MTS[jj].DEBI[ii];
     }
   }
 
   //  delete[] itick;
   delete[] ticks;
-  delete[] MCS;
+  delete[] MTS;
 
 #else
 
