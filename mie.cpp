@@ -1,38 +1,28 @@
-/*2:*/
-#line 30 "mie.w"
+
 #include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "arrays.hpp"
 #include "complex.hpp"
-#include "mie.hpp"/*6:*//*5:*/
-#line 65 "mie.w"
-static void mie_error(char*s)/*:5*/
-#line 69 "mie.w"
+#include "mie.hpp"
+static void mie_error(char*s)
 {
 printf("Mie -- %s\n",s);
 exit(1);
-}/*:6*//*11:*//*10:*/
-#line 120 "mie.w"
-struct complex Lentz_Dn(struct complex z,long n)/*:10*/
-#line 124 "mie.w"
+}
+struct complex Lentz_Dn(struct complex z,long n)
 {
 struct complex alpha_j1,alpha_j2,zinv,aj;
-struct complex alpha,result,ratio,runratio;/*12:*/
-#line 155 "mie.w"
+struct complex alpha,result,ratio,runratio;
 zinv=csdiv(2.0,z);
 alpha=csmul(n+0.5,zinv);
 aj=csmul(-n-1.5,zinv);
 alpha_j1=cadd(aj,cinv(alpha));
 alpha_j2=aj;
 ratio=cdiv(alpha_j1,alpha_j2);
-runratio=cmul(alpha,ratio);/*:12*/
-#line 128 "mie.w"
-
-
-do/*13:*/
-#line 177 "mie.w"
+runratio=cmul(alpha,ratio);
+do
 {
 aj.re=zinv.re-aj.re;
 aj.im=zinv.im-aj.im;
@@ -42,18 +32,12 @@ ratio=cdiv(alpha_j1,alpha_j2);
 zinv.re*= -1;
 zinv.im*= -1;
 runratio=cmul(ratio,runratio);
-}/*:13*/
-#line 131 "mie.w"
-
-
+}
 while(fabs(cabbs(ratio)-1.0)>1e-12);
-
 result=cadd(csdiv(-n,z),runratio);
 return result;
-}/*:11*//*20:*//*19:*/
-#line 241 "mie.w"
-void Dn_down(struct complex z,long nstop,struct complex*D)/*:19*/
-#line 245 "mie.w"
+}
+void Dn_down(struct complex z,long nstop,struct complex*D)
 {
 long k;
 struct complex zinv,k_over_z;
@@ -65,10 +49,8 @@ for(k=nstop-1;k>=1;k--){
 k_over_z=csmul(k,zinv);
 D[k-1]=csub(k_over_z,cinv(cadd(D[k],k_over_z)));
 }
-}/*:20*//*17:*//*16:*/
-#line 210 "mie.w"
-void Dn_up(struct complex z,long nstop,struct complex*D)/*:16*/
-#line 214 "mie.w"
+}
+void Dn_up(struct complex z,long nstop,struct complex*D)
 {
 struct complex zinv,k_over_z;
 long k;
@@ -80,13 +62,11 @@ for(k=1;k<nstop;k++){
 k_over_z=csmul(k,zinv);
 D[k]=csub(cinv(csub(k_over_z,D[k-1])),k_over_z);
 }
-}/*:17*//*23:*//*22:*/
-#line 274 "mie.w"
+}
 void small_Mie(double x,struct complex m,double*mu,
 long nangles,struct complex*s1,
 struct complex*s2,double*qext,double*qsca,
-double*qback,double*g)/*:22*/
-#line 282 "mie.w"
+double*qback,double*g)
 {
 struct complex ahat1,ahat2,bhat1;
 struct complex z0,m2,m4;
@@ -100,8 +80,7 @@ x2=x*x;
 x3=x2*x;
 x4=x2*x2;
 z0.re= -m2.im;
-z0.im=m2.re-1;/*24:*/
-#line 313 "mie.w"
+z0.im=m2.re-1;
 {struct complex z1,z2,z3,z4,D;
 
 if(m.re==0){
@@ -119,8 +98,7 @@ D.im=(-0.7*m2.im)*x2+(8*m4.im-385*m2.im)/1400*x4+z4.im;
 }
 ahat1=cdiv(z3,D);
 
-}/*:24*//*25:*/
-#line 337 "mie.w"
+}
 {
 struct complex z2,z6,z7;
 if(m.re==0){
@@ -133,8 +111,7 @@ z7.re=1.0-(2.0*m2.re-5.0)*x2/30.0;
 z7.im= -m2.im*x2/15;
 bhat1=cmul(z2,cdiv(z6,z7));
 }
-}/*:25*//*26:*/
-#line 356 "mie.w"
+}
 {struct complex z3,z8;
 
 if(m.re==0){
@@ -145,8 +122,7 @@ z8.re=2.0*m2.re+3.0-(m2.re/7.0-0.5)*x2;
 z8.im=2.0*m2.im-m2.im/7.0*x2;
 ahat2=cdiv(z3,z8);
 }
-}/*:26*//*28:*/
-#line 393 "mie.w"
+}
 {struct complex ss1;
 double T;
 
@@ -157,8 +133,7 @@ T=cnorm(ahat1)+cnorm(bhat1)+(5/3)*cnorm(ahat2);
 ss1.re=1.5*x2*(ahat1.re-bhat1.re-(5/3)*ahat2.re);
 ss1.re=1.5*x2*(ahat1.im-bhat1.im-(5/3)*ahat2.im);
 *qback=cnorm(ss1);
-}/*:28*//*29:*/
-#line 415 "mie.w"
+}
 {
 double muj,angle;
 long j;
@@ -177,24 +152,19 @@ s1[j].im=ahat1.im+(bhat1.im+ahat2.im)*muj;
 s2[j].re=bhat1.re+ahat1.re*muj+ahat2.re*angle;
 s2[j].im=bhat1.im+ahat1.im*muj+ahat2.im*angle;
 }
-}/*:29*/
-#line 301 "mie.w"
+}
 
-}/*:23*//*32:*//*31:*/
-#line 455 "mie.w"
+}
 void Mie(double x,struct complex m,double*mu,long nangles,struct complex*s1,
-struct complex*s2,double*qext,double*qsca,double*qback,double*g)/*:31*/
-#line 461 "mie.w"
-{/*33:*/
-#line 487 "mie.w"
+struct complex*s2,double*qext,double*qsca,double*qback,double*g)
+{
 struct complex*D;
 struct complex z1,an,bn,bnm1,anm1,qbcalc;
 double*pi0,*pi1,*tau;
 struct complex xi,xi0,xi1;
 double psi,psi0,psi1;
 double alpha,beta,factor;
-long n,k,nstop,sign;/*:33*//*34:*/
-#line 496 "mie.w"
+long n,k,nstop,sign;
 if(m.im>0.0)mie_error("This program requires m.im>=0");
 if(x<=0.0)mie_error("This program requires positive sphere sizes");
 if(nangles<0)mie_error("This program requires non-negative angle sizes");
@@ -204,15 +174,12 @@ mie_error("Space must be allocated for s1 if nangles!=0");
 if((nangles>0)&&(s2==NULL))
 mie_error("Space must be allocated for s2if nangles!=0");
 if(x>20000)
-mie_error("Program not validated for spheres with x>20000");/*:34*//*35:*/
-#line 508 "mie.w"
+mie_error("Program not validated for spheres with x>20000");
 if(((m.re==0)&&(x<0.1))||((m.re>0.0)&&(cabbs(m)*x<0.1))){
 small_Mie(x,m,mu,nangles,s1,s2,qext,qsca,qback,g);
 return;
-}/*:35*//*37:*/
-#line 530 "mie.w"
-nstop=floor(x+4.05*pow(x,0.33333)+2.0);/*:37*//*36:*/
-#line 514 "mie.w"
+}
+nstop=floor(x+4.05*pow(x,0.33333)+2.0);
 if(nangles>0){
 set_carray(s1,nangles,cset(0.0,0.0));
 set_carray(s2,nangles,cset(0.0,0.0));
@@ -224,11 +191,9 @@ tau=new_darray(nangles);
 set_darray(pi0,nangles,0.0);
 set_darray(tau,nangles,0.0);
 set_darray(pi1,nangles,1.0);
-}/*:36*/
-#line 469 "mie.w"
+}
 
-if(m.re>0)/*38:*/
-#line 548 "mie.w"
+if(m.re>0)
 {
 struct complex z;
 
@@ -241,8 +206,7 @@ if(fabs(m.im*x)<((13.78*m.re-10.8)*m.re+3.9))
 Dn_up(z,nstop,D);
 else
 Dn_down(z,nstop,D);
-}/*:38*//*39:*/
-#line 582 "mie.w"
+}
 psi0=sin(x);
 psi1=psi0/x-cos(x);
 xi0=cset(psi0,cos(x));
@@ -253,12 +217,8 @@ xi1=cset(psi1,cos(x)/x+sin(x));
 sign=1;
 qbcalc=cset(0.0,0.0);
 anm1=cset(0.0,0.0);
-bnm1=cset(0.0,0.0);/*:39*/
-#line 473 "mie.w"
-
-
-for(n=1;n<=nstop;n++){/*40:*/
-#line 607 "mie.w"
+bnm1=cset(0.0,0.0);
+for(n=1;n<=nstop;n++){
 if(m.re==0.0){
 an=csdiv(n*psi1/x-psi0,csub(csmul(n/x,xi1),xi0));
 bn=csdiv(psi1,xi1);
@@ -276,8 +236,7 @@ an=cdiv(cset(z1.re*psi1-psi0,z1.im*psi1),csub(cmul(z1,xi1),xi0));
 z1=cmul(D[n],m);
 z1.re+=n/x;
 bn=cdiv(cset(z1.re*psi1-psi0,z1.im*psi1),csub(cmul(z1,xi1),xi0));
-}/*:40*//*41:*/
-#line 645 "mie.w"
+}
 for(k=0;k<nangles;k++){
 factor=(2.0*n+1.0)/(n+1.0)/n;
 tau[k]=n*mu[k]*pi1[k]-(n+1)*pi0[k];
@@ -293,8 +252,7 @@ for(k=0;k<nangles;k++){
 factor=pi1[k];
 pi1[k]=((2.0*n+1.0)*mu[k]*pi1[k]-(n+1.0)*pi0[k])/n;
 pi0[k]=factor;
-}/*:41*//*42:*/
-#line 691 "mie.w"
+}
 factor=2.0*n+1.0;
 *g+=(n-1.0/n)*(anm1.re*an.re+anm1.im*an.im+bnm1.re*bn.re+bnm1.im*bn.im);
 *g+=factor/n/(n+1.0)*(an.re*bn.re+an.im*bn.im);
@@ -302,8 +260,7 @@ factor=2.0*n+1.0;
 *qext+=factor*(an.re+bn.re);
 sign*= -1;
 qbcalc.re+=sign*factor*(an.re-bn.re);
-qbcalc.im+=sign*factor*(an.im-bn.im);/*:42*//*43:*/
-#line 715 "mie.w"
+qbcalc.im+=sign*factor*(an.im-bn.im);
 factor=(2.0*n+1.0)/x;
 xi=csub(csmul(factor,xi1),xi0);
 xi0=xi1;
@@ -314,28 +271,22 @@ psi0=psi1;
 psi1=xi1.re;
 
 anm1=an;
-bnm1=bn;/*:43*/
-#line 479 "mie.w"
+bnm1=bn;
 
-}/*44:*/
-#line 728 "mie.w"
+}
 *qsca*=2/(x*x);
 *qext*=2/(x*x);
 *g*=4/(*qsca)/(x*x);
-*qback=cnorm(qbcalc)/(x*x);/*:44*//*45:*/
-#line 734 "mie.w"
+*qback=cnorm(qbcalc)/(x*x);
 if(m.re>0)free_carray(D);
 if(nangles>0){
 free_darray(pi0);
 free_darray(pi1);
 free_darray(tau);
-}/*:45*/
-#line 483 "mie.w"
+}
 
-}/*:32*//*48:*//*47:*/
-#line 751 "mie.w"
-void ez_Mie(double x,double n,double*qsca,double*g)/*:47*/
-#line 755 "mie.w"
+}
+void ez_Mie(double x,double n,double*qsca,double*g)
 {
 long nangles=0;
 double*mu=NULL;
@@ -348,4 +299,4 @@ m.re=n;
 m.im=0.0;
 
 Mie(x,m,mu,nangles,s1,s2,&qext,qsca,&qback,g);
-}/*:48*//*:2*/
+}
